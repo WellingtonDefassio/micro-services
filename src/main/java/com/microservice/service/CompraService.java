@@ -5,15 +5,14 @@ import com.microservice.dto.CompraDTO;
 import com.microservice.dto.InfoFornecedorDTO;
 import com.microservice.dto.InfoPedidoDTO;
 import com.microservice.model.Compra;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 public class CompraService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CompraService.class);
     private FornecedorClient fornecedorClient;
 
     public CompraService(FornecedorClient fornecedorClient) {
@@ -22,8 +21,11 @@ public class CompraService {
 
     public Compra realizaCompra(CompraDTO compra) {
 
+        String estado = compra.getEndereco().getEstado();
+        LOG.info("buscando informações do fornecedor de {}", estado);
         InfoFornecedorDTO infoPorEstado = fornecedorClient.getInfoPorEstado(compra.getEndereco().getEstado());
 
+        LOG.info("realizando um pedido");
         InfoPedidoDTO infoPedidoDTO = fornecedorClient.realizaPedido(compra.getItens());
 
         System.out.println(infoPorEstado.getEndereco());
